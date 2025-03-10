@@ -1,26 +1,18 @@
-use actix_web::{web, App, HttpServer, Responder, HttpResponse};
+use actix_web::{App, HttpServer, Responder, HttpResponse};
 use actix_web::HttpRequest;
 use actix_cors::Cors;
-
-
-
-
-
+use actix_web::get;
 
 pub  struct  WebListener;
 
 
-
-
-
-
+#[get("/aoe4")]
+async fn greet(_req: HttpRequest) -> impl Responder {
+    HttpResponse::Ok()
+        .content_type("application/json")
+        .body(r#"{"message": "Hello, World!"}"#)
+}
 impl  WebListener{
-    async fn greet(_req: HttpRequest) -> impl Responder {
-
-        HttpResponse::Ok()
-            .content_type("application/json")
-            .body(r#"{"message": "Hello, World!"}"#)
-    }
     pub async fn listen()  {
         let _ = HttpServer::new(|| {
             App::new()
@@ -28,11 +20,9 @@ impl  WebListener{
                     Cors::permissive().
                     supports_credentials() 
                 )
-                .route("/aoe4/{path:.*}", web::get().to(WebListener::greet))
+                .service(greet)
         })
         .bind("0.0.0.0:7081").unwrap()
         .run().await;
-
     }
-    
 }
