@@ -240,24 +240,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aoe4bot"
-version = "0.1.0"
-dependencies = [
- "actix-cors",
- "actix-web",
- "dotenv",
- "ed25519-dalek",
- "lazy_static",
- "mysql",
- "rand 0.9.0",
- "rand_core 0.9.3",
- "serde",
- "serde_json",
- "thiserror 2.0.12",
- "tokio",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1350,6 +1332,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a31971752e70b8b2686d7e46ec17fb38dad4051d94024c88df49b667caea9c84"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "qqbot"
+version = "0.1.0"
+dependencies = [
+ "actix-cors",
+ "actix-web",
+ "dotenv",
+ "ed25519-dalek",
+ "lazy_static",
+ "mysql",
+ "rand 0.9.0",
+ "rand_core 0.9.3",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "tokio",
 ]
 
 [[package]]
