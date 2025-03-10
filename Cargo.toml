@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 actix-cors = "0.7.0"
 actix-web = "4.9.0"
+dotenv = "0.15.0"
 ed25519-dalek =  { version = "2" }
 lazy_static = "1.5.0"
 mysql = "26.0.0"
