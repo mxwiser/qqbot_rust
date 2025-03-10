@@ -1,14 +1,13 @@
 
 #[macro_use]
 mod bot_error;
-
+use dotenv::from_filename;
 use std::env;
-
 use actix_web::{ App, HttpResponse, HttpServer, Responder};
 use actix_web::HttpRequest;
 use actix_cors::Cors;
 
-pub  struct  WebListener;
+
 use ed25519_dalek::ed25519::signature::SignerMut;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::Signature;
@@ -52,7 +51,13 @@ fn message(_req_body: String,_req: HttpRequest) -> Result<HttpResponse,bot_error
 
 
 
-
+fn mask_string(s: String) -> String {
+    if s.len() <= 5 {
+        s.to_string()
+    } else {
+        format!("{}{}", &s[..5], "*".repeat(s.len() - 5))
+    }
+}
 
 
 
@@ -68,10 +73,12 @@ async fn greet(req_body: String,_req: HttpRequest) -> impl Responder {
 }
 
 
-
-
-impl  WebListener{
-    pub async fn listen()  {
+pub  struct  BotHook;
+impl  BotHook{
+    pub async fn start()  {
+        from_filename("bot.env").ok();
+        println!("BOT_SECRET: {:?}",mask_string(env::var("BOT_SECRET").expect("BOT_SECRET not found!")));
+        println!("BotHook listen on: {:?}",env::var("BOT_LISTEN").expect("BOT_LISTEN not found!"));
         let _ = HttpServer::new(|| {
             App::new()
                 .wrap(
@@ -80,7 +87,7 @@ impl  WebListener{
                 )
                 .service(greet)
         })
-        .bind("0.0.0.0:8080").unwrap()
+        .bind(env::var("BOT_LISTEN").unwrap()).unwrap()
         .run().await;
     }
 }

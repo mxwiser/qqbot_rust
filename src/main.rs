@@ -2,17 +2,17 @@
 
 
 mod bot_web_hook;
-use bot_web_hook::WebListener;
+use bot_web_hook::BotHook;
 use std::thread;
-use dotenv::dotenv;
+
 
 
 #[tokio::main]
 async fn main() {
-    dotenv().ok();
+    
     let handle = thread::spawn(async|| {
-            println!("Web thread started.");
-            let _ = WebListener::listen().await;
+            println!("BotHook thread started.");
+            let _ = BotHook::start().await;
     });
 
     handle.join().unwrap().await;
