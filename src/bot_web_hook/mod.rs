@@ -1,4 +1,7 @@
 
+#[macro_use]
+mod bot_error;
+
 use std::env;
 
 use actix_web::{ App, HttpResponse, HttpServer, Responder};
@@ -11,10 +14,6 @@ use ed25519_dalek::SigningKey;
 use ed25519_dalek::Signature;
 
 
-
-use super::bot_error::ThrErr;
-
-use super::bot_error;
 
 
 
@@ -31,7 +30,6 @@ fn message(_req_body: String,_req: HttpRequest) -> Result<HttpResponse,bot_error
       
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
     println!("收到数据: {:?}",_json);
-  
     if let Some(op) = _json.get("op") {
         if op.to_string()== "13" {
             let d =  json_ok_or!(_json,"d");
