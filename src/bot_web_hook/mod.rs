@@ -12,13 +12,9 @@ use ed25519_dalek::ed25519::signature::SignerMut;
 use message::MessageEvent;
 use std::{env, u64};
 
-lazy_static::lazy_static!{
+lazy_static::lazy_static! {
     static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("aaaa".to_string()));
 }
-
-
-
-
 
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
     let plain_token = ok_or!(ok_or!(_msg.d.clone()).plain_token);
@@ -42,9 +38,8 @@ fn hook(
     _req: HttpRequest,
     state: web::Data<Mutex<Vec<String>>>,
 ) -> Result<HttpResponse, bot_error::Error> {
-
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
-     println!("收到数据: {:?}", _json);
+    println!("收到数据: {:?}", _json);
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
     if let Some(op) = _json.get("op") {
         if op.to_string() == "13" {
@@ -52,7 +47,6 @@ fn hook(
                 .content_type("application/json")
                 .json(plain_token_vef(_msg)?));
         } else {
-            //去重
             let mut ids = state.lock().unwrap();
             if ids.contains(&ok_or!(_msg.id.clone())) {
                 return Ok(HttpResponse::Ok().finish());
@@ -62,22 +56,21 @@ fn hook(
                 }
                 ids.push(ok_or!(_msg.id.clone()));
             }
-            //
 
-            if ok_or!(_msg.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string()|| ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
+            if ok_or!(_msg.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string()
+                || ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
             {
                 match posix::BotPosix::message_create(_msg) {
-                    Ok(_ok)=>{},
-                    Err(_e)=>{
-                        println!("message_create error! {:?}",_e)
+                    Ok(_ok) => {}
+                    Err(_e) => {
+                        println!("message_create error! {:?}", _e)
                     }
                 }
-
-            }else {
+            } else {
                 match posix::BotPosix::message_event(_msg) {
-                    Ok(_ok)=>{},
-                    Err(_e)=>{
-                        println!("message_event error! {:?}",_e)
+                    Ok(_ok) => {}
+                    Err(_e) => {
+                        println!("message_event error! {:?}", _e)
                     }
                 }
             }
@@ -116,14 +109,10 @@ use std::time::Duration;
 
 pub struct BotHook;
 
-async  fn  renew_app_access_token(){
-
-
-
-    let _handle = thread::spawn( || {
+async fn renew_app_access_token() {
+    let _handle = thread::spawn(|| {
         //APP_ACCESS_TOKEN
         println!("APP_ACCESS_TOKEN thread start！");
-
 
         let json_obj = serde_json::json!({
             "appId": env::var("BOT_APPID").unwrap(),
@@ -132,40 +121,31 @@ async  fn  renew_app_access_token(){
 
         //https://bots.qq.com/app/getAppAccessToken
         let client = reqwest::blocking::Client::new();
-        let _response:reqwest::blocking::Response = client.post("https://bots.qq.com/app/getAppAccessToken").json(&json_obj).send().unwrap();
-        let body:String=_response.text().unwrap();
-        let _json:serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-        
-        loop {  
+        let _response: reqwest::blocking::Response = client
+            .post("https://bots.qq.com/app/getAppAccessToken")
+            .json(&json_obj)
+            .send()
+            .unwrap();
+        let body: String = _response.text().unwrap();
+        let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+
+        loop {
             if let Some(access_token) = _json.get("access_token") {
-                if let Some(expires_in)= _json.get("expires_in") {
-                    let  mut token = APP_ACCESS_TOKEN.lock().unwrap();
+                if let Some(expires_in) = _json.get("expires_in") {
+                    let mut token = APP_ACCESS_TOKEN.lock().unwrap();
                     *token = access_token.as_str().unwrap().to_string();
-                    let time =expires_in.as_str().unwrap().parse::<u64>().unwrap();
-                    println!("APP_ACCESS_TOKEN {:?} {:?}",token,time);
-                    drop(token); 
-                    thread::sleep(Duration::from_secs(time));        
+                    let time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
+                    println!("APP_ACCESS_TOKEN {:?} {:?}", token, time);
+                    drop(token);
+                    thread::sleep(Duration::from_secs(time));
                 }
             }
-            
         }
-
-        
-        
     });
-
-
-
-
-
 }
 
-
-
 impl BotHook {
-    
     pub async fn start() {
-
         from_filename("bot.env").ok();
         println!(
             "BOT_APPID: {:?}",
@@ -180,13 +160,7 @@ impl BotHook {
             env::var("BOT_LISTEN").expect("BOT_LISTEN not found!")
         );
 
-
-     
         renew_app_access_token().await;
-
-            
-  
-
 
         let ids: Vec<String> = Vec::new();
         let state = web::Data::new(Mutex::new(ids));
