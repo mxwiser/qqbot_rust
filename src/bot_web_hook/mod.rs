@@ -39,7 +39,7 @@ fn hook(
     state: web::Data<Mutex<Vec<String>>>,
 ) -> Result<HttpResponse, bot_error::Error> {
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
-    println!("收到数据: {:?}", _json);
+    //println!("Receive: {:?}", _json);
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
     if let Some(op) = _json.get("op") {
         if op.to_string() == "13" {
