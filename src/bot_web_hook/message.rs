@@ -78,13 +78,8 @@ impl MessageHelper {
                 .header("Authorization", format!("QQBot {}", token))
                 .send()
                 .unwrap();
-            println!("sms tokeen {}",token);
             Ok(())
         });
-
-        //let body:String=_response.text().unwrap();
-        // let _json:serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-        //println!("{}",body);
 
         Ok(())
     }
