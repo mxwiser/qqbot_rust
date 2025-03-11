@@ -23,7 +23,15 @@ macro_rules! json_ok_or {
         $a.get($b).ok_or(bot_error::ThrErr::thr_err(format!("json_ok_or {}",$b) .to_string()))?
     };
 }
-
-
+#[allow(unused_macros)]
+#[macro_export] 
+macro_rules! ok_or {
+    ($a:expr) => {
+        $a.ok_or(bot_error::ThrErr::thr_err(format!("ok_or err") .to_string()))?
+    };
+    ($a:expr,$b:expr) => {
+        $a.ok_or(bot_error::ThrErr::thr_err(format!("ok_or {}",$b) .to_string()))?
+    };
+}
 
 
