@@ -5,4 +5,4 @@
 - [✓] 支持文本消息发送
 - [] 支持图文消息发送
 - [] 未完待续...
-> 使用前请将bot.env.example重命名为bot.env，并配置 bot.env 中的信息 ，同时确保运行环境能够找到bot.env文件
+> 在posix.rs中对接Bot消息处理函数即可。使用前请将bot.env.example重命名为bot.env，并配置 bot.env 中的信息 ，同时确保运行环境能够找到bot.env文件. 
