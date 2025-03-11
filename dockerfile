@@ -7,6 +7,7 @@ ENV TZ=Asia/Shanghai
 VOLUME /app/assets
 WORKDIR /app
 COPY ./target/x86_64-unknown-linux-musl/release/qqbot ./qqbot
+COPY ./bot.env ./bot.env
 # 暴露应用运行的端口（根据需要修改）
 EXPOSE 8080
 
