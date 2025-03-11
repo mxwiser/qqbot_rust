@@ -1,7 +1,7 @@
 #[macro_use]
-mod bot_error;
-mod message;
-mod posix;
+pub mod bot_error;
+pub mod message;
+pub mod posix;
 use actix_cors::Cors;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
@@ -37,7 +37,8 @@ fn hook(
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
 
-    println!("收到数据: {:?}", _msg);
+    
+
     if let Some(op) = _json.get("op") {
         if op.to_string() == "13" {
             return Ok(HttpResponse::Ok()
@@ -56,9 +57,22 @@ fn hook(
             }
             //
 
-            if ok_or!(_msg.t.clone()) == "AT_MESSAGE_CREATE".to_string()|| ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
+            if ok_or!(_msg.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string()|| ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
             {
-                posix::BotPosix::message_create(_msg)?;
+                match posix::BotPosix::message_create(_msg) {
+                    Ok(_ok)=>{},
+                    Err(_e)=>{
+                        println!("message_create error! {:?}",_e)
+                    }
+                }
+
+            }else {
+                match posix::BotPosix::message_event(_msg) {
+                    Ok(_ok)=>{},
+                    Err(_e)=>{
+                        println!("message_event error! {:?}",_e)
+                    }
+                }
             }
         }
     }
@@ -83,7 +97,7 @@ async fn greet(
         Ok(res) => res,
         Err(e) => {
             println!("Error: {}", e);
-            HttpResponse::BadRequest().await.unwrap()
+            HttpResponse::Ok().finish()
         }
     }
 }
