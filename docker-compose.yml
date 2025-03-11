@@ -1,0 +1,17 @@
+services:
+  bot_rust:
+    restart: always
+    network_mode: bridge
+    container_name: bot_rust
+    build: ./
+    image: bot_rust:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - bot_rust:/app/assets
+    environment:
+      - TZ=Asia/Shanghai
+volumes:
+  bot_rust:  # 定义卷
+    driver: local  # 指定驱动（可选）
+    name: bot_rust

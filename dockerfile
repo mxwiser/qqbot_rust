@@ -6,9 +6,9 @@ ENV TZ=Asia/Shanghai
 # RUN echo "Asia/Shanghai" > /etc/timezone
 VOLUME /app/assets
 WORKDIR /app
-COPY ./target/x86_64-unknown-linux-musl/release/http_server ./http_server
+COPY ./target/x86_64-unknown-linux-musl/release/qqbot ./qqbot
 # 暴露应用运行的端口（根据需要修改）
 EXPOSE 8080
 
 # 设置容器启动时的默认命令
-CMD ["./http_server"]
+CMD ["./qqbot"]

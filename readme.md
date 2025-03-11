@@ -12,5 +12,6 @@
 docker config
 rustup target add x86_64-unknown-linux-musl 
 apt-get install musl-tools 
-cargo build --release --target x86_64-unknown-linux-musl 
+cargo build --release --target x86_64-unknown-linux-musl --features openssl/vendored
+dcoker compose up --build
 ```
