@@ -121,21 +121,20 @@ async fn renew_app_access_token() {
 
         //https://bots.qq.com/app/getAppAccessToken
         let client = reqwest::blocking::Client::new();
-        let _response: reqwest::blocking::Response = client
-            .post("https://bots.qq.com/app/getAppAccessToken")
-            .json(&json_obj)
-            .send()
-            .unwrap();
-        let body: String = _response.text().unwrap();
-        let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-
+     
         loop {
+            let  _request = client
+            .post("https://bots.qq.com/app/getAppAccessToken")
+            .json(&json_obj);
+            let _response: reqwest::blocking::Response =_request.send().unwrap();
+            let body: String = _response.text().unwrap();
+            let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
             if let Some(access_token) = _json.get("access_token") {
                 if let Some(expires_in) = _json.get("expires_in") {
                     let mut token = APP_ACCESS_TOKEN.lock().unwrap();
                     *token = access_token.as_str().unwrap().to_string();
                     let time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
-                    println!("APP_ACCESS_TOKEN {:?} {:?}", token, time);
+                    println!("APP_ACCESS_TOKEN Renew: {:?} {:?}", token, time);
                     drop(token);
                     thread::sleep(Duration::from_secs(time));
                 }

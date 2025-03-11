@@ -76,9 +76,10 @@ impl MessageHelper {
             let _response: reqwest::blocking::Response = client
                 .post(api_url)
                 .json(&json_obj)
-                .header("Authorization", format!("QQBot {}", token.clone()))
+                .header("Authorization", format!("QQBot {}", token))
                 .send()
                 .unwrap();
+            println!("sms tokeen {}",token);
             Ok(())
         });
 
