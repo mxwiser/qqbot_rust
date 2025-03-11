@@ -1,3 +1,5 @@
+use std::env::VarError;
+
 use thiserror::Error;
 
 
@@ -6,6 +8,8 @@ use thiserror::Error;
 pub enum Error {
     #[error("serde_json {0}")]
     JsonError(#[from] serde_json::Error),
+    #[error("varError {0}")]
+    VarError(#[from] VarError),
     #[error("{0}")]
     Error(std::string::String),
 }

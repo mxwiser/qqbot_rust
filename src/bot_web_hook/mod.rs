@@ -10,7 +10,15 @@ use ed25519_dalek::Signature;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
 use message::MessageEvent;
-use std::env;
+use std::{env, u64};
+
+lazy_static::lazy_static!{
+    static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("aaaa".to_string()));
+}
+
+
+
+
 
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
     let plain_token = ok_or!(ok_or!(_msg.d.clone()).plain_token);
@@ -34,11 +42,10 @@ fn hook(
     _req: HttpRequest,
     state: web::Data<Mutex<Vec<String>>>,
 ) -> Result<HttpResponse, bot_error::Error> {
+
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
+    // println!("收到数据: {:?}", _json);
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
-
-    
-
     if let Some(op) = _json.get("op") {
         if op.to_string() == "13" {
             return Ok(HttpResponse::Ok()
@@ -103,11 +110,67 @@ async fn greet(
 }
 
 use actix_web::web;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
+
 pub struct BotHook;
+
+async  fn  renew_app_access_token(){
+
+
+
+    let _handle = thread::spawn( || {
+        //APP_ACCESS_TOKEN
+        println!("APP_ACCESS_TOKEN thread start！");
+
+
+        let json_obj = serde_json::json!({
+            "appId": env::var("BOT_APPID").unwrap(),
+            "clientSecret": env::var("BOT_SECRET").unwrap(),
+        });
+
+        //https://bots.qq.com/app/getAppAccessToken
+        let client = reqwest::blocking::Client::new();
+        let _response:reqwest::blocking::Response = client.post("https://bots.qq.com/app/getAppAccessToken").json(&json_obj).send().unwrap();
+        let body:String=_response.text().unwrap();
+        let _json:serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+        
+        loop {  
+            if let Some(access_token) = _json.get("access_token") {
+                if let Some(expires_in)= _json.get("expires_in") {
+                    let  mut token = APP_ACCESS_TOKEN.lock().unwrap();
+                    *token = access_token.as_str().unwrap().to_string();
+                    let time =expires_in.as_str().unwrap().parse::<u64>().unwrap();
+                    println!("APP_ACCESS_TOKEN {:?} {:?}",token,time);
+                    drop(token); 
+                    thread::sleep(Duration::from_secs(time));        
+                }
+            }
+            
+        }
+
+        
+        
+    });
+
+
+
+
+
+}
+
+
+
 impl BotHook {
+    
     pub async fn start() {
+
         from_filename("bot.env").ok();
+        println!(
+            "BOT_APPID: {:?}",
+            mask_string(env::var("BOT_APPID").expect("BOT_APPID not found!"))
+        );
         println!(
             "BOT_SECRET: {:?}",
             mask_string(env::var("BOT_SECRET").expect("BOT_SECRET not found!"))
@@ -116,6 +179,15 @@ impl BotHook {
             "BotHook listen on: {:?}",
             env::var("BOT_LISTEN").expect("BOT_LISTEN not found!")
         );
+
+
+     
+        renew_app_access_token().await;
+
+            
+  
+
+
         let ids: Vec<String> = Vec::new();
         let state = web::Data::new(Mutex::new(ids));
 
