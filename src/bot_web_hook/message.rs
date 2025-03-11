@@ -60,30 +60,25 @@ impl MessageHelper {
         task::spawn_blocking(move || -> Result<(), bot_error::Error> {
             // 执行阻塞操作
             let client = reqwest::blocking::Client::new();
-            let mut api_url: String=env::var("BOT_API").unwrap();
+            let mut api_url: String = env::var("BOT_API").unwrap();
             if ok_or!(me.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string() {
-                
-                api_url =api_url+
-                     &"/v2/groups/"
+                api_url = api_url
+                    + &"/v2/groups/"
                     + &ok_or!(ok_or!(me.d.clone()).group_openid)
                     + &"/messages".to_string();
             }
             if ok_or!(me.t.clone()) == "C2C_MESSAGE_CREATE".to_string() {
-                api_url =api_url
+                api_url = api_url
                     + &"/v2/users/"
                     + &ok_or!(ok_or!(ok_or!(me.d.clone()).author).id)
                     + &"/messages".to_string();
             }
-            println!("dsdsdsdsdsdsdd"); 
             let _response: reqwest::blocking::Response = client
                 .post(api_url)
                 .json(&json_obj)
                 .header("Authorization", format!("QQBot {}", token.clone()))
                 .send()
-                .expect("请求失败");
-            let body: String = _response.text().unwrap();
-            let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-            println!("{}", token);
+                .unwrap();
             Ok(())
         });
 
