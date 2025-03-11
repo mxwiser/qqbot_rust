@@ -11,7 +11,9 @@ use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
 use message::MessageEvent;
 use std::{env, u64};
-
+#[allow(unused_imports)]
+pub use tklog::{trace,debug, error, fatal, info,warn};
+use tklog::{Format, LEVEL, LOG};
 lazy_static::lazy_static! {
     static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("aaaa".to_string()));
 }
@@ -39,7 +41,7 @@ fn hook(
     state: web::Data<Mutex<Vec<String>>>,
 ) -> Result<HttpResponse, bot_error::Error> {
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
-    //println!("Receive: {:?}", _json);
+    //info!("Receive: {:?}", _json);
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
     if let Some(op) = _json.get("op") {
         if op.to_string() == "13" {
@@ -63,14 +65,14 @@ fn hook(
                 match posix::BotPosix::message_create(_msg) {
                     Ok(_ok) => {}
                     Err(_e) => {
-                        println!("message_create error! {:?}", _e)
+                        info!("message_create error! ", _e)
                     }
                 }
             } else {
                 match posix::BotPosix::message_event(_msg) {
                     Ok(_ok) => {}
                     Err(_e) => {
-                        println!("message_event error! {:?}", _e)
+                        info!("message_event error! ", _e)
                     }
                 }
             }
@@ -96,7 +98,7 @@ async fn greet(
     match hook(req_body, _req, state) {
         Ok(res) => res,
         Err(e) => {
-            println!("Error: {}", e);
+            info!("Error: ", e);
             HttpResponse::Ok().finish()
         }
     }
@@ -107,12 +109,13 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
+
 pub struct BotHook;
 
 async fn renew_app_access_token() {
     let _handle = thread::spawn(|| {
         //APP_ACCESS_TOKEN
-        println!("APP_ACCESS_TOKEN thread start！");
+        info!("APP_ACCESS_TOKEN thread start！");
 
         let json_obj = serde_json::json!({
             "appId": env::var("BOT_APPID").unwrap(),
@@ -134,7 +137,7 @@ async fn renew_app_access_token() {
                     let mut token = APP_ACCESS_TOKEN.lock().unwrap();
                     *token = access_token.as_str().unwrap().to_string();
                     let time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
-                    println!("APP_ACCESS_TOKEN Renew: {:?} {:?}", token, time);
+                    info!("APP_ACCESS_TOKEN Renew:", token, time);
                     drop(token);
                     thread::sleep(Duration::from_secs(time));
                 }
@@ -145,17 +148,23 @@ async fn renew_app_access_token() {
 
 impl BotHook {
     pub async fn start() {
+
+        LOG.set_console(true)
+        .set_level(LEVEL::Info)
+        .set_format(Format::LevelFlag | Format::Time )
+        .set_cutmode_by_size("./assets/runtime.log", 10000, 10, true);
+
         from_filename("bot.env").ok();
-        println!(
-            "BOT_APPID: {:?}",
+        info!(
+            "BOT_APPID: ",
             mask_string(env::var("BOT_APPID").expect("BOT_APPID not found!"))
         );
-        println!(
-            "BOT_SECRET: {:?}",
+        info!(
+            "BOT_SECRET: ",
             mask_string(env::var("BOT_SECRET").expect("BOT_SECRET not found!"))
         );
-        println!(
-            "BotHook listen on: {:?}",
+        info!(
+            "BotHook listen on: ",
             env::var("BOT_LISTEN").expect("BOT_LISTEN not found!")
         );
 
