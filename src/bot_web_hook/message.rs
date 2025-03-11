@@ -1,5 +1,5 @@
 use serde::Deserialize;
-#[derive(Deserialize,Clone, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 #[allow(dead_code)]
 pub struct MessageEvent {
     #[serde(default)]
@@ -10,9 +10,11 @@ pub struct MessageEvent {
     #[serde(default)]
     pub t: Option<String>,
 }
-#[derive(Deserialize,Clone, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 #[allow(dead_code)]
 pub struct Data {
+    #[serde(default)]
+    pub group_openid: Option<String>,
     #[serde(default)]
     pub author: Option<Author>,
     #[serde(default)]
@@ -22,12 +24,10 @@ pub struct Data {
     #[serde(default)]
     pub content: Option<String>,
     #[serde(default)]
-    pub group_openid: Option<String>,
-    #[serde(default)]
     pub id: Option<String>,
 }
 
-#[derive(Deserialize, Debug,Clone)]
+#[derive(Deserialize, Debug, Clone)]
 #[allow(dead_code)]
 pub struct Author {
     #[serde(default)]
@@ -37,52 +37,59 @@ pub struct Author {
     #[serde(default)]
     pub user_openid: Option<String>,
     #[serde(default)]
-    pub group_openid: Option<String>,
-    #[serde(default)]
     pub member_openid: Option<String>,
 }
 
-
-
+use super::bot_error;
 use crate::bot_web_hook::APP_ACCESS_TOKEN;
 use std::env;
 use tokio::task;
-use super::bot_error;
 pub struct MessageHelper;
 
-impl  MessageHelper{
-    pub    fn rot_message(msg:String,me:MessageEvent) -> Result<(),bot_error::Error> {
-           let json_obj = serde_json::json!({
-              "content":msg,
-              "msg_type": 0,
-              "msg_id":ok_or!(ok_or!(me.d.clone()).id)
-            });
-            let   _token = APP_ACCESS_TOKEN.lock().unwrap();
-            let token = _token.to_string().clone();
-            drop(_token);
-            
-            task::spawn_blocking(move|| -> Result<(),bot_error::Error> {
-                // 执行阻塞操作
-                let client = reqwest::blocking::Client::new();
-                let _response:reqwest::blocking::Response = 
-                client.post(env::var("BOT_API").unwrap()+&"/v2/users/"+&ok_or!(ok_or!(ok_or!(me.d).author).id)+&"/messages".to_string())
-                .json(&json_obj).header("Authorization",format!("QQBot {}",token.clone())).
-                send().expect("请求失败");
-                let body:String=_response.text().unwrap();
-                let _json:serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-                println!("{}",token);
-                Ok(())
- 
-            });
+impl MessageHelper {
+    pub fn rot_message(msg: String, me: MessageEvent) -> Result<(), bot_error::Error> {
+        let json_obj = serde_json::json!({
+          "content":msg,
+          "msg_type": 0,
+          "msg_id":ok_or!(ok_or!(me.d.clone()).id)
+        });
+        let _token = APP_ACCESS_TOKEN.lock().unwrap();
+        let token = _token.to_string().clone();
+        drop(_token);
 
-            
- 
-            //let body:String=_response.text().unwrap();
-            // let _json:serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-            //println!("{}",body);
- 
+        task::spawn_blocking(move || -> Result<(), bot_error::Error> {
+            // 执行阻塞操作
+            let client = reqwest::blocking::Client::new();
+            let mut api_url: String=env::var("BOT_API").unwrap();
+            if ok_or!(me.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string() {
+                
+                api_url =api_url+
+                     &"/v2/groups/"
+                    + &ok_or!(ok_or!(me.d.clone()).group_openid)
+                    + &"/messages".to_string();
+            }
+            if ok_or!(me.t.clone()) == "C2C_MESSAGE_CREATE".to_string() {
+                api_url =api_url
+                    + &"/v2/users/"
+                    + &ok_or!(ok_or!(ok_or!(me.d.clone()).author).id)
+                    + &"/messages".to_string();
+            }
+            println!("dsdsdsdsdsdsdd"); 
+            let _response: reqwest::blocking::Response = client
+                .post(api_url)
+                .json(&json_obj)
+                .header("Authorization", format!("QQBot {}", token.clone()))
+                .send()
+                .expect("请求失败");
+            let body: String = _response.text().unwrap();
+            let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+            println!("{}", token);
+            Ok(())
+        });
 
-
+        //let body:String=_response.text().unwrap();
+        // let _json:serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+        //println!("{}",body);
 
         Ok(())
     }
