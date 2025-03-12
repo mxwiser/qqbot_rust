@@ -151,8 +151,8 @@ impl BotHook {
 
         LOG.set_console(true)
         .set_level(LEVEL::Info)
-        .set_format(Format::LevelFlag|Format::Date|Format::Time)
-        .set_cutmode_by_size("./assets/runtime.log", 10000, 10, true);
+        .set_format(Format::LevelFlag|Format::Date|Format::Time);
+        //.set_cutmode_by_size("./assets/runtime.log", 10000, 10, true);
 
         from_filename("bot.env").ok();
         info!(
