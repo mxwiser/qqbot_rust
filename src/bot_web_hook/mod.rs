@@ -137,7 +137,7 @@ async fn renew_app_access_token() {
                     let mut token = APP_ACCESS_TOKEN.lock().unwrap();
                     *token = access_token.as_str().unwrap().to_string();
                     let time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
-                    info!("APP_ACCESS_TOKEN Renew:", token, time);
+                    info!("APP_ACCESS_TOKEN Renew:", token," expires_in: ", time);
                     drop(token);
                     thread::sleep(Duration::from_secs(time));
                 }
