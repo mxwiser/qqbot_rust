@@ -51,16 +51,17 @@ async  fn hook(
                 .content_type("application/json")
                 .json(plain_token_vef(_msg)?));
         } else {
-            let mut ids = message_event.ids.lock().unwrap();
-            if ids.contains(&ok_or!(_msg.id.clone())) {
-                return Ok(HttpResponse::Ok().finish());
-            } else {
-                if ids.len() > 100 {
-                    ids.remove(0);
+            {
+                let mut ids = message_event.ids.lock().unwrap();
+                if ids.contains(&ok_or!(_msg.id.clone())) {
+                    return Ok(HttpResponse::Ok().finish());
+                } else {
+                    if ids.len() > 100 {
+                        ids.remove(0);
+                    }
+                    ids.push(ok_or!(_msg.id.clone()));
                 }
-                ids.push(ok_or!(_msg.id.clone()));
             }
-            drop(ids);
             actix_web::rt::spawn(async move {
                 match BotHook::message_process(&_msg).await {
                     Ok(_) => {}

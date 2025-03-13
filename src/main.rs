@@ -1,4 +1,7 @@
 mod bot_web_hook;
+
+use std::time::Duration;
+
 use crate::bot_web_hook::bot_error;
 use crate::bot_web_hook::info;
 use bot_web_hook::message::MessageHelper;
@@ -13,7 +16,7 @@ impl BotTrait for BotHook {
         if _t.as_ref() == "GROUP_AT_MESSAGE_CREATE".to_string()
             || _t.as_ref() == "C2C_MESSAGE_CREATE".to_string()
         {
-           
+            tokio::time::sleep(Duration::from_secs(5)).await;
             let _d = _message_event.d.as_ref().unwrap();
             let _id = _d.author.as_ref().unwrap().id.as_ref().unwrap();
             let _text = _d.content.as_ref().unwrap();
@@ -27,5 +30,13 @@ impl BotTrait for BotHook {
 
 #[tokio::main]
 async fn main() {
-    BotHook::start().await;
+
+
+
+     // Add some asynchronous code here
+     BotHook::start().await;
+
+ 
+
+
 }
