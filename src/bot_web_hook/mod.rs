@@ -35,7 +35,7 @@ fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::E
     Ok(json_obj)
 }
 
-fn hook(
+async  fn hook(
     _req_body: String,
     _req: HttpRequest,
     message_event:web::Data<AppState>
@@ -57,6 +57,7 @@ fn hook(
                 }
                 ids.push(ok_or!(_msg.id.clone()));
             }
+            drop(ids);
                 match (message_event.handler)(&_msg) {
                     Ok(_ok) => {}
                     Err(_e) => {
@@ -83,7 +84,7 @@ async fn greet(
     _req: HttpRequest,
     message_event:web::Data<AppState>
 ) -> impl Responder {
-    match hook(req_body, _req,message_event) {
+    match hook(req_body, _req,message_event).await {
         Ok(res) => res,
         Err(e) => {
             info!("Error: ", e);
