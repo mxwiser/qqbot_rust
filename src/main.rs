@@ -16,7 +16,6 @@ impl BotTrait for BotHook {
         if _t.as_ref() == "GROUP_AT_MESSAGE_CREATE".to_string()
             || _t.as_ref() == "C2C_MESSAGE_CREATE".to_string()
         {
-            tokio::time::sleep(Duration::from_secs(5)).await;
             let _d = _message_event.d.as_ref().unwrap();
             let _id = _d.author.as_ref().unwrap().id.as_ref().unwrap();
             let _text = _d.content.as_ref().unwrap();
@@ -31,12 +30,5 @@ impl BotTrait for BotHook {
 #[tokio::main]
 async fn main() {
 
-
-
-     // Add some asynchronous code here
      BotHook::start().await;
-
- 
-
-
 }
