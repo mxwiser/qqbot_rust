@@ -255,6 +255,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-trait"
+version = "0.1.87"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d556ec1359574147ec0c4fc5eb525f3f23263a592b1a9c07e0a75b427de55c97"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "atomic-waker"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1697,6 +1708,7 @@ version = "0.1.0"
 dependencies = [
  "actix-cors",
  "actix-web",
+ "async-trait",
  "dotenv",
  "ed25519-dalek",
  "lazy_static",
