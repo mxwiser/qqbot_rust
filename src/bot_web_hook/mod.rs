@@ -1,7 +1,8 @@
 #[macro_use]
 pub mod bot_error;
 pub mod message;
-pub mod posix;
+pub mod bot_trait;
+use bot_trait::BotTrait;
 use actix_cors::Cors;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
@@ -17,6 +18,8 @@ use tklog::{Format, LEVEL, LOG};
 lazy_static::lazy_static! {
     static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
 }
+
+
 
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
     let plain_token = ok_or!(ok_or!(_msg.d.clone()).plain_token);
@@ -58,7 +61,7 @@ async  fn hook(
                 ids.push(ok_or!(_msg.id.clone()));
             }
             drop(ids);
-                match (message_event.handler)(&_msg) {
+                match BotHook::message_process(&_msg).await {
                     Ok(_ok) => {}
                     Err(_e) => {
                         info!("message_event error! ", _e)
@@ -95,7 +98,6 @@ async fn greet(
 #[derive(Clone)]
 struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
-    handler: Arc<fn(&MessageEvent) ->Result<(),bot_error::Error>>,
 }
 
 use actix_web::web;
@@ -149,7 +151,7 @@ impl BotHook {
 
 
 
-    pub async fn start(message_event:fn( &MessageEvent) ->Result<(),bot_error::Error>) {
+    pub async fn start() {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
@@ -177,7 +179,6 @@ impl BotHook {
 
         let _as = AppState {
             ids: Arc::new(nids),
-            handler: Arc::new(message_event),
         };
         let _was =web::Data::new(_as);
         let _ = HttpServer::new(move || {
