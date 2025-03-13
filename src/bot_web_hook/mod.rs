@@ -61,13 +61,14 @@ async  fn hook(
                 ids.push(ok_or!(_msg.id.clone()));
             }
             drop(ids);
+            actix_web::rt::spawn(async move {
                 match BotHook::message_process(&_msg).await {
-                    Ok(_ok) => {}
-                    Err(_e) => {
-                        info!("message_event error! ", _e)
+                    Ok(_) => {}
+                    Err(e) => {
+                        info!("Message process error: {:?}", e);
                     }
                 }
-
+            });
         }
     }
     Ok(HttpResponse::Ok().finish())

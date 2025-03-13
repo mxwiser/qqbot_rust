@@ -18,7 +18,7 @@ impl BotTrait for BotHook {
             let _id = _d.author.as_ref().unwrap().id.as_ref().unwrap();
             let _text = _d.content.as_ref().unwrap();
             info!("收到消息 ID:",_id," 内容: ",_text);
-            MessageHelper::rot_message(&_text, _message_event)?
+            MessageHelper::rot_message(&_text, _message_event).await?;
         }
         Ok(())
     }
