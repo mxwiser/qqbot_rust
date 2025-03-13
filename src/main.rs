@@ -4,10 +4,10 @@ use crate::bot_web_hook::info;
 use bot_web_hook::{BotHook, message::MessageEvent};
 
 fn message_process(_message_event: MessageEvent) -> Result<(), bot_error::Error> {
-    let _t =_message_event.t.as_ref().unwrap();
+    let _t =_message_event.t.unwrap();
     
-    if *_t == "GROUP_AT_MESSAGE_CREATE".to_string()
-        || *_t == "C2C_MESSAGE_CREATE".to_string()
+    if _t == "GROUP_AT_MESSAGE_CREATE".to_string()
+        || _t == "C2C_MESSAGE_CREATE".to_string()
     {
        
         let _d = _message_event.d.unwrap();
