@@ -15,7 +15,7 @@ use std::{ env, u64};
 pub use tklog::{trace,debug, error, fatal, info,warn};
 use tklog::{Format, LEVEL, LOG};
 lazy_static::lazy_static! {
-    static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("aaaa".to_string()));
+    static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
 }
 
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
@@ -40,10 +40,8 @@ fn hook(
     _req: HttpRequest,
     message_event:web::Data<AppState>
 ) -> Result<HttpResponse, bot_error::Error> {
-    let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
-    //info!("Receive: {:?}", _json);
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
-    if let Some(op) = _json.get("op") {
+    if let Some(op) = _msg.op.as_ref() {
         
         if op.to_string() == "13" {
             return Ok(HttpResponse::Ok()
