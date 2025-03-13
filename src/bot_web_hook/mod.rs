@@ -59,25 +59,13 @@ fn hook(
                 }
                 ids.push(ok_or!(_msg.id.clone()));
             }
-
-            // if ok_or!(_msg.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string()
-            //     || ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
-            // {
-            //     match posix::BotPosix::message_create(_msg) {
-            //         Ok(_ok) => {}
-            //         Err(_e) => {
-            //             info!("message_create error! ", _e)
-            //         }
-            //     }
-            // } else {
-
-                match (message_event.handler)(_msg) {
+                match (message_event.handler)(&_msg) {
                     Ok(_ok) => {}
                     Err(_e) => {
                         info!("message_event error! ", _e)
                     }
                 }
-            // }
+
         }
     }
     Ok(HttpResponse::Ok().finish())
@@ -108,7 +96,7 @@ async fn greet(
 #[derive(Clone)]
 struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
-    handler: Arc<dyn Fn(MessageEvent) ->Result<(),bot_error::Error> + Send + Sync>,
+    handler: Arc<dyn Fn(&MessageEvent) ->Result<(),bot_error::Error> + Send + Sync>,
 }
 
 use actix_web::web;
@@ -162,7 +150,7 @@ impl BotHook {
 
 
 
-    pub async fn start(message_event:fn( MessageEvent) ->Result<(),bot_error::Error>) {
+    pub async fn start(message_event:fn( &MessageEvent) ->Result<(),bot_error::Error>) {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
