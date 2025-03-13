@@ -48,8 +48,9 @@ use tokio::task;
 
 pub struct MessageHelper;
 #[allow(unused)]
+use actix_web::rt::task::JoinHandle;
 impl MessageHelper {
-    pub async fn rot_message(msg: &String, _me:& MessageEvent) -> Result<(), bot_error::Error> {
+    pub fn rot_message(msg: &String, _me:& MessageEvent) -> JoinHandle<Result<(), bot_error::Error>> {
         let me = _me.clone();
         let msg_id = me.d.as_ref().unwrap().id.as_ref().unwrap();
         let json_obj = serde_json::json!({
@@ -61,7 +62,7 @@ impl MessageHelper {
         let token = _token.to_string().clone();
         drop(_token);
 
-        task::spawn_blocking( move|| -> Result<(), bot_error::Error> {
+        let _t=  task::spawn_blocking( move|| -> Result<(), bot_error::Error> {
             let client = reqwest::blocking::Client::new();
             let mut api_url: String = env::var("BOT_API").unwrap();
             if ok_or!(me.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string() {
@@ -83,8 +84,8 @@ impl MessageHelper {
                 .send()
                 .unwrap();
             Ok(())
-        }).await;
+        });
 
-        Ok(())
+       return  _t
     }
 }
