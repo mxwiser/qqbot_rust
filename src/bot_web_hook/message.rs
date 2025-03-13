@@ -44,8 +44,10 @@ use super::bot_error;
 use crate::bot_web_hook::APP_ACCESS_TOKEN;
 use std::env;
 use tokio::task;
-pub struct MessageHelper;
 
+
+pub struct MessageHelper;
+#[allow(unused)]
 impl MessageHelper {
     pub fn rot_message(msg: String, me: MessageEvent) -> Result<(), bot_error::Error> {
         let json_obj = serde_json::json!({

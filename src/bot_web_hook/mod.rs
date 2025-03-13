@@ -9,8 +9,8 @@ use dotenv::from_filename;
 use ed25519_dalek::Signature;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
-use message::MessageEvent;
-use std::{env, u64};
+use message::{ MessageEvent};
+use std::{ env, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
 use tklog::{Format, LEVEL, LOG};
@@ -38,18 +38,19 @@ fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::E
 fn hook(
     _req_body: String,
     _req: HttpRequest,
-    state: web::Data<Mutex<Vec<String>>>,
+    message_event:web::Data<AppState>
 ) -> Result<HttpResponse, bot_error::Error> {
     let _json: serde_json::Value = serde_json::from_str(_req_body.as_str())?;
     //info!("Receive: {:?}", _json);
     let _msg: message::MessageEvent = serde_json::from_str(_req_body.as_str())?;
     if let Some(op) = _json.get("op") {
+        
         if op.to_string() == "13" {
             return Ok(HttpResponse::Ok()
                 .content_type("application/json")
                 .json(plain_token_vef(_msg)?));
         } else {
-            let mut ids = state.lock().unwrap();
+            let mut ids = message_event.ids.lock().unwrap();
             if ids.contains(&ok_or!(_msg.id.clone())) {
                 return Ok(HttpResponse::Ok().finish());
             } else {
@@ -59,23 +60,24 @@ fn hook(
                 ids.push(ok_or!(_msg.id.clone()));
             }
 
-            if ok_or!(_msg.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string()
-                || ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
-            {
-                match posix::BotPosix::message_create(_msg) {
-                    Ok(_ok) => {}
-                    Err(_e) => {
-                        info!("message_create error! ", _e)
-                    }
-                }
-            } else {
-                match posix::BotPosix::message_event(_msg) {
+            // if ok_or!(_msg.t.clone()) == "GROUP_AT_MESSAGE_CREATE".to_string()
+            //     || ok_or!(_msg.t.clone()) == "C2C_MESSAGE_CREATE".to_string()
+            // {
+            //     match posix::BotPosix::message_create(_msg) {
+            //         Ok(_ok) => {}
+            //         Err(_e) => {
+            //             info!("message_create error! ", _e)
+            //         }
+            //     }
+            // } else {
+
+                match (message_event.handler)(_msg) {
                     Ok(_ok) => {}
                     Err(_e) => {
                         info!("message_event error! ", _e)
                     }
                 }
-            }
+            // }
         }
     }
     Ok(HttpResponse::Ok().finish())
@@ -93,15 +95,20 @@ fn mask_string(s: String) -> String {
 async fn greet(
     req_body: String,
     _req: HttpRequest,
-    state: web::Data<Mutex<Vec<String>>>,
+    message_event:web::Data<AppState>
 ) -> impl Responder {
-    match hook(req_body, _req, state) {
+    match hook(req_body, _req,message_event) {
         Ok(res) => res,
         Err(e) => {
             info!("Error: ", e);
             HttpResponse::Ok().finish()
         }
     }
+}
+#[derive(Clone)]
+struct AppState {
+    ids:Arc<Mutex<Vec<String>>>,
+    handler: Arc<dyn Fn(MessageEvent) ->Result<(),bot_error::Error> + Send + Sync>,
 }
 
 use actix_web::web;
@@ -111,7 +118,6 @@ use std::time::Duration;
 
 
 pub struct BotHook;
-
 async fn renew_app_access_token() {
     let _handle = thread::spawn(|| {
         //APP_ACCESS_TOKEN
@@ -146,9 +152,17 @@ async fn renew_app_access_token() {
     });
 }
 
-impl BotHook {
-    pub async fn start() {
 
+
+
+
+
+impl BotHook {
+
+
+
+
+    pub async fn start(message_event:fn( MessageEvent) ->Result<(),bot_error::Error>) {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
@@ -170,13 +184,21 @@ impl BotHook {
 
         renew_app_access_token().await;
 
-        let ids: Vec<String> = Vec::new();
-        let state = web::Data::new(Mutex::new(ids));
+        
 
+        // let ids: Vec<String> = Vec::new();
+        let vids: Vec<String> = Vec::new();
+        let nids=Mutex::new(vids);
+
+        let _as = AppState {
+            ids: Arc::new(nids),
+            handler: Arc::new(message_event),
+        };
+        let _was =web::Data::new(_as);
         let _ = HttpServer::new(move || {
             App::new()
                 .wrap(Cors::permissive().supports_credentials())
-                .app_data(state.clone())
+                .app_data(_was.clone())
                 .service(greet)
         })
         .bind(env::var("BOT_LISTEN").unwrap())
