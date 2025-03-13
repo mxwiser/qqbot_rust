@@ -9,7 +9,7 @@ use dotenv::from_filename;
 use ed25519_dalek::Signature;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
-use message::{ MessageEvent};
+use message::MessageEvent;
 use std::{ env, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
