@@ -94,7 +94,7 @@ async fn greet(
 #[derive(Clone)]
 struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
-    handler: Arc<dyn Fn(&MessageEvent) ->Result<(),bot_error::Error> + Send + Sync>,
+    handler: Arc<fn(&MessageEvent) ->Result<(),bot_error::Error>>,
 }
 
 use actix_web::web;
@@ -169,8 +169,6 @@ impl BotHook {
         );
 
         renew_app_access_token().await;
-
-        
 
         // let ids: Vec<String> = Vec::new();
         let vids: Vec<String> = Vec::new();

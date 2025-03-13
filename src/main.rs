@@ -6,7 +6,6 @@ use bot_web_hook::{BotHook, message::MessageEvent};
 
 fn message_process(_message_event: &MessageEvent) -> Result<(), bot_error::Error> {
     let _t =_message_event.t.as_ref().unwrap();
-    
     if _t.as_ref() == "GROUP_AT_MESSAGE_CREATE".to_string()
         || _t.as_ref() == "C2C_MESSAGE_CREATE".to_string()
     {
@@ -17,7 +16,6 @@ fn message_process(_message_event: &MessageEvent) -> Result<(), bot_error::Error
         info!("收到消息 ID:",_id," 内容: ",_text);
         MessageHelper::rot_message(&_text, _message_event)?
     }
-
     Ok(())
 }
 
