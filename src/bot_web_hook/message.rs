@@ -50,17 +50,16 @@ pub struct MessageHelper;
 #[allow(unused)]
 use actix_web::rt::task::JoinHandle;
 impl MessageHelper {
-    pub fn rot_message(msg: &String, _me:& MessageEvent) -> JoinHandle<Result<(),bot_error::Error>>{
+    pub fn rot_message(_msg: &String, _me:& MessageEvent) -> JoinHandle<Result<(),bot_error::Error>>{
         let me = _me.clone();
-        let msg_id = me.d.as_ref().unwrap().id.as_ref().unwrap();
-        let json_obj = serde_json::json!({
-          "content":msg,
-          "msg_type": 0,
-          "msg_id": msg_id
-        });
-
-
-        let _t=  task::spawn_blocking( move|| ->Result<(),bot_error::Error> {
+        let msg = _msg.clone();
+        let _t=  task::spawn_blocking( move || ->Result<(),bot_error::Error> {
+            let msg_id = me.d.as_ref().unwrap().id.as_ref().unwrap();
+            let json_obj = serde_json::json!({
+                "content":msg,
+                "msg_type": 0,
+                "msg_id": msg_id
+              });
             let _token = APP_ACCESS_TOKEN.lock().unwrap();
             let token = _token.to_string().clone();
             drop(_token);
