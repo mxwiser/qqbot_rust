@@ -58,11 +58,12 @@ impl MessageHelper {
           "msg_type": 0,
           "msg_id": msg_id
         });
-        let _token = APP_ACCESS_TOKEN.lock().unwrap();
-        let token = _token.to_string().clone();
-        drop(_token);
+
 
         let _t=  task::spawn_blocking( move|| ->Result<(),bot_error::Error> {
+            let _token = APP_ACCESS_TOKEN.lock().unwrap();
+            let token = _token.to_string().clone();
+            drop(_token);
             let client = reqwest::blocking::Client::new();
             let mut api_url: String = env::var("BOT_API").unwrap();
             let _ok =||->Result<(),bot_error::Error>{
