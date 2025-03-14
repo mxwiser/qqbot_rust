@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, ItemFn};
-use syn::ReturnType;
+
 #[proc_macro_attribute]
 pub fn bot_event(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input_fn = parse_macro_input!(item as ItemFn);
@@ -10,16 +10,21 @@ pub fn bot_event(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_args = &input_fn.sig.inputs;
     let fn_ident = &input_fn.sig.ident;
     
-   // 处理返回类型
-    let return_type = match &input_fn.sig.output {
-    ReturnType::Default => quote! { () },
-    ReturnType::Type(_, ty) => quote! { #ty }
-};
+//    // 处理返回类型
+//     let return_type = match &input_fn.sig.output {
+//     ReturnType::Default => quote! { () },
+//     ReturnType::Type(_, ty) => quote! { #ty }
+// };
 
     // 生成新的 main 函数
     let expanded = quote! {
-        fn #fn_ident(#fn_args) -> #return_type{
-          tokio::spawn(async move #block)
+        fn #fn_ident(#fn_args) -> JoinHandle<i32>{
+          tokio::spawn(async move 
+          {
+            #block
+            return 0
+          }
+        )
         }
     };
 

@@ -147,7 +147,7 @@ async fn renew_app_access_token() {
 
 use tokio::task::JoinHandle;
 
-type MessageHandler = Arc<fn ( message::MessageEvent) -> JoinHandle<Result<(),bot_error::Error>>
+type MessageHandler = Arc<fn ( message::MessageEvent) -> JoinHandle<i32>
 >;
 struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
@@ -159,7 +159,7 @@ impl BotHook {
 
 
 
-    pub async fn start(handler:fn ( message::MessageEvent) ->  JoinHandle<Result<(),bot_error::Error>>) {
+    pub async fn start(handler:fn ( message::MessageEvent) -> JoinHandle<i32>) {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
