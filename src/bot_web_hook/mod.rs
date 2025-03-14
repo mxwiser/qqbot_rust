@@ -1,8 +1,6 @@
 #[macro_use]
 pub mod bot_error;
 pub mod message;
-pub mod bot_trait;
-use bot_trait::BotTrait;
 use actix_cors::Cors;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
@@ -38,6 +36,7 @@ fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::E
     Ok(json_obj)
 }
 
+
 async  fn hook(
     _req_body: String,
     _req: HttpRequest,
@@ -62,14 +61,14 @@ async  fn hook(
                     ids.push(ok_or!(_msg.id.clone()));
                 }
             }
-            actix_web::rt::spawn(async move {
-                match BotHook::message_process(&_msg).await {
+ 
+                match (message_event.event)(_msg) {
                     Ok(_) => {}
                     Err(e) => {
                         info!("Message process error: {:?}", e);
                     }
                 }
-            });
+        
         }
     }
     Ok(HttpResponse::Ok().finish())
@@ -97,10 +96,8 @@ async fn greet(
         }
     }
 }
-#[derive(Clone)]
-struct AppState {
-    ids:Arc<Mutex<Vec<String>>>,
-}
+
+
 
 use actix_web::web;
 use std::sync::{Arc, Mutex};
@@ -145,15 +142,19 @@ async fn renew_app_access_token() {
 
 
 
-
-
+type MessageHandler = Arc<fn ( message::MessageEvent) -> Result<(), bot_error::Error>
+>;
+struct AppState {
+    ids:Arc<Mutex<Vec<String>>>,
+    event:MessageHandler
+}
 
 impl BotHook {
 
 
 
 
-    pub async fn start() {
+    pub async fn start(handler:fn ( message::MessageEvent) -> Result<(), bot_error::Error>) {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
@@ -181,6 +182,7 @@ impl BotHook {
 
         let _as = AppState {
             ids: Arc::new(nids),
+            event:Arc::new(handler)
         };
         let _was =web::Data::new(_as);
         let _ = HttpServer::new(move || {
