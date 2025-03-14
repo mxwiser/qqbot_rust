@@ -2,6 +2,7 @@
 name = "qqbot_rust"
 version = "0.1.0"
 edition = "2024"
+[lib]
 
 [dependencies]
 actix-cors = "0.7.0"
@@ -17,3 +18,8 @@ tokio = { version = "1.44.0",default-features = false, features = ["full"] }
 openssl = { version = "0.10", features = ["vendored"] }
 tklog = "0.2.9"
 async-trait = "0.1.87"
+syn = "2.0.100"
+quote = "1.0.40"
+my_macros = { path = "./macros" }
+[workspace]
+members = ["macros"]

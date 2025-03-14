@@ -1,7 +1,7 @@
 mod bot_web_hook;
 use bot_web_hook::BotHook;
 
-#[tokio::main]
+#[my_main]
 async  fn message_process(_message_event: bot_web_hook::message::MessageEvent) -> Result<(), bot_web_hook::bot_error::Error>{
     let _t =_message_event.t.as_ref().unwrap();
     if _t.as_ref() == "GROUP_AT_MESSAGE_CREATE".to_string()

@@ -19,6 +19,11 @@ lazy_static::lazy_static! {
 
 
 
+
+
+
+
+
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
     let plain_token = ok_or!(ok_or!(_msg.d.clone()).plain_token);
     let event_ts = ok_or!(ok_or!(_msg.d).event_ts);
