@@ -1,11 +1,5 @@
 mod bot_web_hook;
-
-
-
 use bot_web_hook::{BotHook, message::MessageEvent,info,bot_error,message,bot_trait};
-
-
-
 impl bot_trait::BotTrait for BotHook {
     async  fn message_process(_message_event: &MessageEvent) -> Result<(), bot_error::Error> {
         let _t =_message_event.t.as_ref().unwrap();
@@ -22,8 +16,6 @@ impl bot_trait::BotTrait for BotHook {
         Ok(())
     }
 }
-
-
 #[tokio::main]
 async fn main() {
      BotHook::start().await;
