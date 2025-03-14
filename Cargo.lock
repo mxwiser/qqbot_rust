@@ -1228,6 +1228,7 @@ version = "0.1.0"
 dependencies = [
  "quote",
  "syn",
+ "tokio",
 ]
 
 [[package]]
@@ -1455,6 +1456,7 @@ dependencies = [
  "dotenv",
  "ed25519-dalek",
  "lazy_static",
+ "macros",
  "openssl",
  "quote",
  "reqwest",

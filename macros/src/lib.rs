@@ -1,30 +1,25 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, ItemFn};
-
+use syn::ReturnType;
 #[proc_macro_attribute]
-pub fn my_main(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn bot_event(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input_fn = parse_macro_input!(item as ItemFn);
-
-    // 确保函数名为 main 并且是 async
-    if input_fn.sig.ident != "main" {
-        panic!("这个宏只能用于 main 函数");
-    }
-    if input_fn.sig.asyncness.is_none() {
-        panic!("main 函数必须是 async 的");
-    }
-
     // 获取原函数的块
     let block = &input_fn.block;
+    let fn_args = &input_fn.sig.inputs;
+    let fn_ident = &input_fn.sig.ident;
+    
+   // 处理返回类型
+    let return_type = match &input_fn.sig.output {
+    ReturnType::Default => quote! { () },
+    ReturnType::Type(_, ty) => quote! { #ty }
+};
 
     // 生成新的 main 函数
     let expanded = quote! {
-        fn main() {
-            tokio::runtime::Builder::new_multi_thread()
-                .enable_all()
-                .build()
-                .unwrap()
-                .block_on(async #block)
+        fn #fn_ident(#fn_args) -> #return_type{
+          tokio::spawn(async move #block)
         }
     };
 

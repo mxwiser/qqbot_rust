@@ -20,6 +20,6 @@ tklog = "0.2.9"
 async-trait = "0.1.87"
 syn = "2.0.100"
 quote = "1.0.40"
-my_macros = { path = "./macros" }
+macros = { path = "./macros" }
 [workspace]
 members = ["macros"]

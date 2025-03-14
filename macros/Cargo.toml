@@ -7,3 +7,4 @@ proc-macro = true
 [dependencies]
 syn = "2.0.100"
 quote = "1.0.40"
+tokio = { version = "1.44.0",default-features = false, features = ["full"] }

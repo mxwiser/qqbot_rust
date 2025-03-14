@@ -67,7 +67,7 @@ async  fn hook(
                 }
             }
  
-                match (message_event.event)(_msg) {
+                match (message_event.event)(_msg).await {
                     Ok(_) => {}
                     Err(e) => {
                         info!("Message process error: {:?}", e);
@@ -145,9 +145,9 @@ async fn renew_app_access_token() {
     });
 }
 
+use tokio::task::JoinHandle;
 
-
-type MessageHandler = Arc<fn ( message::MessageEvent) -> Result<(), bot_error::Error>
+type MessageHandler = Arc<fn ( message::MessageEvent) -> JoinHandle<Result<(),bot_error::Error>>
 >;
 struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
@@ -159,7 +159,7 @@ impl BotHook {
 
 
 
-    pub async fn start(handler:fn ( message::MessageEvent) -> Result<(), bot_error::Error>) {
+    pub async fn start(handler:fn ( message::MessageEvent) ->  JoinHandle<Result<(),bot_error::Error>>) {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
