@@ -1,7 +1,8 @@
 mod bot_web_hook;
 use bot_web_hook::BotHook;
 use macros::bot_event;
-use tokio::task::JoinHandle;
+
+
 #[bot_event]
 async fn process(_message_event: bot_web_hook::message::MessageEvent) {
     let _t =_message_event.t.as_ref().unwrap();
@@ -12,10 +13,8 @@ async fn process(_message_event: bot_web_hook::message::MessageEvent) {
         let _id = _d.author.as_ref().unwrap().id.as_ref().unwrap();
         let _text = _d.content.as_ref().unwrap();
         bot_web_hook::info!("bbb收到消息 ID:",_id," 内容: ",_text);
-        bot_web_hook::message:: MessageHelper::rot_message(&_text, &_message_event).await.unwrap().unwrap();
-       
+        bot_web_hook::message:: MessageHelper::rot_message(&_text, &_message_event).await.unwrap().unwrap();  
     }
-   
 }
 
 #[tokio::main]

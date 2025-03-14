@@ -18,13 +18,11 @@ pub fn bot_event(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     // 生成新的 main 函数
     let expanded = quote! {
-        fn #fn_ident(#fn_args) -> JoinHandle<i32>{
-          tokio::spawn(async move 
-          {
-            #block
-            return 0
-          }
-        )
+        fn #fn_ident(#fn_args){
+             tokio::spawn(async move {
+                #block
+            });
+  
         }
     };
 
