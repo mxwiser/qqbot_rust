@@ -9,6 +9,10 @@ use ed25519_dalek::Signature;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
 use message::MessageEvent;
+use tokio::spawn;
+use tokio::task::spawn_blocking;
+use tokio::time::sleep;
+
 use std::{ env, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
@@ -101,43 +105,48 @@ async fn greet(
 
 use actix_web::web;
 use std::sync::{Arc, Mutex};
-use std::thread;
 use std::time::Duration;
 
 
 pub struct BotHook;
 async fn renew_app_access_token() {
-    let _handle = thread::spawn(|| {
-        //APP_ACCESS_TOKEN
+
+
+    spawn(async {
         info!("APP_ACCESS_TOKEN thread start！");
 
-        let json_obj = serde_json::json!({
-            "appId": env::var("BOT_APPID").unwrap(),
-            "clientSecret": env::var("BOT_SECRET").unwrap(),
-        });
-
-        //https://bots.qq.com/app/getAppAccessToken
-        let client = reqwest::blocking::Client::new();
-     
         loop {
-            let  _request = client
-            .post("https://bots.qq.com/app/getAppAccessToken")
-            .json(&json_obj);
-            let _response: reqwest::blocking::Response =_request.send().unwrap();
-            let body: String = _response.text().unwrap();
-            let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
-            if let Some(access_token) = _json.get("access_token") {
-                if let Some(expires_in) = _json.get("expires_in") {
-                    let mut token = APP_ACCESS_TOKEN.lock().unwrap();
-                    *token = access_token.as_str().unwrap().to_string();
-                    let time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
-                    info!("APP_ACCESS_TOKEN Renew:", token," expires_in: ", time);
-                    drop(token);
-                    thread::sleep(Duration::from_secs(time));
+            
+        let  time=  spawn_blocking(||{
+                let json_obj = serde_json::json!({
+                    "appId": env::var("BOT_APPID").unwrap(),
+                    "clientSecret": env::var("BOT_SECRET").unwrap(),
+                });        
+                let client = reqwest::blocking::Client::new();
+                let  _request = client
+                .post("https://bots.qq.com/app/getAppAccessToken")
+                .json(&json_obj);
+                let _response: reqwest::blocking::Response =_request.send().unwrap();
+                let body: String = _response.text().unwrap();
+                let _json: serde_json::Value = serde_json::from_str(body.as_str()).unwrap();
+                let mut  time =0;
+                if let Some(access_token) = _json.get("access_token") {
+                    if let Some(expires_in) = _json.get("expires_in") {
+                        let mut token = APP_ACCESS_TOKEN.lock().unwrap();
+                        *token = access_token.as_str().unwrap().to_string();
+                         time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
+                        info!("APP_ACCESS_TOKEN Renew:", token," expires_in: ", time);
+                        drop(token);
+                    }
                 }
-            }
+                return time;
+            }).await.unwrap();
+            sleep(Duration::from_secs(time)).await;
         }
+        
     });
+
+    
 }
 
 
