@@ -110,13 +110,9 @@ use std::time::Duration;
 
 pub struct BotHook;
 async fn renew_app_access_token() {
-
-
     spawn(async {
         info!("APP_ACCESS_TOKEN thread start！");
-
         loop {
-            
         let  time=  spawn_blocking(||{
                 let json_obj = serde_json::json!({
                     "appId": env::var("BOT_APPID").unwrap(),
@@ -143,10 +139,7 @@ async fn renew_app_access_token() {
             }).await.unwrap();
             sleep(Duration::from_secs(time)).await;
         }
-        
     });
-
-    
 }
 
 
