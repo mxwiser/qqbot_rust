@@ -2,6 +2,7 @@
 pub mod bot_error;
 pub mod message;
 use actix_cors::Cors;
+use actix_files::Files;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
 use dotenv::from_filename;
@@ -191,7 +192,7 @@ impl BotHook {
             App::new()
                 .wrap(Cors::permissive().supports_credentials())
                 .app_data(_was.clone())
-                .service(greet)
+                .service(greet).service(Files::new("/assets", "./assets/"))
         })
         .bind(env::var("BOT_LISTEN").unwrap())
         .unwrap()
