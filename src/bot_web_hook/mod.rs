@@ -112,7 +112,7 @@ use std::time::Duration;
 pub struct BotHook;
 async fn renew_app_access_token() {
     spawn(async {
-        info!("APP_ACCESS_TOKEN thread start！");
+        info!("APP_ACCESS_TOKEN Task Start！");
 
         loop {
         let  time=  spawn_blocking(||{
