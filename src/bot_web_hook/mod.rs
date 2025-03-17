@@ -86,7 +86,7 @@ fn mask_string(s: String) -> String {
     }
 }
 
-#[actix_web::route("/aoe4", method = "GET", method = "POST")]
+#[actix_web::route("/", method = "GET", method = "POST")]
 async fn greet(
     req_body: String,
     _req: HttpRequest,
