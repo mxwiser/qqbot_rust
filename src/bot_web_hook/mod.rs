@@ -171,7 +171,7 @@ impl BotHook {
             App::new()
                 .wrap(Cors::permissive().supports_credentials())
                 .app_data(_was.clone())
-                .service(greet).service(Files::new("/assets", "./assets/"))
+                //.service(greet).service(Files::new("/assets", "./assets/"))
         })
         .bind(env::var("BOT_LISTEN").unwrap())
         .unwrap()
