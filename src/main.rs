@@ -12,7 +12,7 @@ async fn process(_message_event: bot_web_hook::message::MessageEvent) {
         let _d = _message_event.d.as_ref().unwrap();
         let _id = _d.author.as_ref().unwrap().id.as_ref().unwrap();
         let _text = _d.content.as_ref().unwrap();
-        bot_web_hook::info!("收到消息 ID:",_id," 内容: ",_text);
+        println!("收到消息 ID:{} 内容:{}",_id,_text);
         bot_web_hook::message:: MessageHelper::rot_message(&_text, &_message_event).await.unwrap().unwrap();  
     }
 }
