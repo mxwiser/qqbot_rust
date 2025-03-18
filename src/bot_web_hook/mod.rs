@@ -13,7 +13,8 @@ use message::MessageEvent;
 use tokio::spawn;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
-
+#[allow(unused_imports)]
+use actix_web::main;
 use std::{ env, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
