@@ -17,7 +17,7 @@ async fn process(_message_event: bot_web_hook::message::MessageEvent) {
     }
 }
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() {
     let _bot= BotHook::start(process);
     tokio::try_join!(_bot).unwrap();
