@@ -139,7 +139,7 @@ struct AppState {
 pub  use actix_web::dev::Server;
 impl BotHook {
     #[allow(dead_code)]
-    pub async  fn start(handler:fn ( message::MessageEvent)) ->Server {
+    pub fn start(handler:fn ( message::MessageEvent)) ->Server {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
