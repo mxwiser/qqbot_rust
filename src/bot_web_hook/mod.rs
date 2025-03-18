@@ -5,7 +5,7 @@ use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
-use dotenv::from_filename;
+pub use dotenv::from_filename;
 use ed25519_dalek::Signature;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
