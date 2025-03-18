@@ -146,7 +146,6 @@ impl BotHook {
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
         //.set_cutmode_by_size("./assets/runtime.log", 10000, 10, true);
-
         from_filename("bot.env").ok();
         info!(
             "BOT_APPID: ",
@@ -160,9 +159,7 @@ impl BotHook {
             "BotHook listen on: ",
             env::var("BOT_LISTEN").expect("BOT_LISTEN not found!")
         );
-
         renew_app_access_token();
-
         let vids: Vec<String> = Vec::new();
         let nids=Mutex::new(vids);
         let _as = AppState {
@@ -179,7 +176,6 @@ impl BotHook {
         .bind(env::var("BOT_LISTEN").unwrap())
         .unwrap()
         .run();
-
         return _app;
     }
 }
