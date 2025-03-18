@@ -17,7 +17,7 @@ async fn process(_message_event: bot_web_hook::message::MessageEvent) {
     }
 }
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() {
 
      BotHook::start(process).await;
