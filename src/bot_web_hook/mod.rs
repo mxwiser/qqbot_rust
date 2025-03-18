@@ -165,7 +165,6 @@ impl BotHook {
         // let ids: Vec<String> = Vec::new();
         let vids: Vec<String> = Vec::new();
         let nids=Mutex::new(vids);
-
         let _as = AppState {
             ids: Arc::new(nids),
             event:Arc::new(handler)
