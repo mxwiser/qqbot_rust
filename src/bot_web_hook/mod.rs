@@ -138,7 +138,7 @@ struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
     event:MessageHandler
 }
-use actix_web::dev::Server;
+pub  use actix_web::dev::Server;
 impl BotHook {
     #[allow(dead_code)]
     pub fn start(handler:fn ( message::MessageEvent)) -> Server{
