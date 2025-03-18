@@ -15,11 +15,11 @@ use tokio::spawn;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
 use std::{ env, u64};
-#[allow(unused_imports)]
-pub use tklog::{trace,debug, error, fatal, info,warn};
-use tklog::{Format, LEVEL, LOG};
+
+
+
 lazy_static::lazy_static! {
-    static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
+    pub static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
 }
 
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
@@ -72,13 +72,7 @@ async  fn hook(
     Ok(HttpResponse::Ok().finish())
 }
 
-fn mask_string(s: String) -> String {
-    if s.len() <= 5 {
-        s.to_string()
-    } else {
-        format!("{}{}", &s[..5], "*".repeat(s.len() - 5))
-    }
-}
+
 
 #[actix_web::route("/", method = "GET", method = "POST")]
 async fn greet(
@@ -88,8 +82,7 @@ async fn greet(
 ) -> impl Responder {
     match hook(req_body, _req,message_event).await {
         Ok(res) => res,
-        Err(e) => {
-            info!("Error: ", e);
+        Err(_e) => {
             HttpResponse::Ok().finish()
         }
     }
@@ -101,7 +94,6 @@ use std::time::Duration;
 pub struct BotHook;
  fn renew_app_access_token() {
     spawn(async {
-        info!("APP_ACCESS_TOKEN Task Start！");
         loop {
         let  time=  spawn_blocking(||{
                 let json_obj = serde_json::json!({
@@ -121,7 +113,7 @@ pub struct BotHook;
                         let mut token = APP_ACCESS_TOKEN.lock().unwrap();
                         *token = access_token.as_str().unwrap().to_string();
                          time = expires_in.as_str().unwrap().parse::<u64>().unwrap();
-                        info!("APP_ACCESS_TOKEN Renew:", token," expires_in: ", time);
+                        //println!("APP_ACCESS_TOKEN Renew: {} expires_in: {}", token,time);
                         drop(token);
                     }
                 }
@@ -140,23 +132,12 @@ pub  use actix_web::dev::Server;
 impl BotHook {
     #[allow(dead_code)]
     pub fn start(handler:fn ( message::MessageEvent)) ->Server {
-        LOG.set_console(true)
-        .set_level(LEVEL::Info)
-        .set_format(Format::LevelFlag|Format::Date|Format::Time);
-        //.set_cutmode_by_size("./assets/runtime.log", 10000, 10, true);
+     
         from_filename("bot.env").ok();
-        info!(
-            "BOT_APPID: ",
-            mask_string(env::var("BOT_APPID").expect("BOT_APPID not found!"))
-        );
-        info!(
-            "BOT_SECRET: ",
-            mask_string(env::var("BOT_SECRET").expect("BOT_SECRET not found!"))
-        );
-        info!(
-            "BotHook listen on: ",
-            env::var("BOT_LISTEN").expect("BOT_LISTEN not found!")
-        );
+        env::var("BOT_APPID").expect("BOT_APPID not found!");
+        env::var("BOT_SECRET").expect("BOT_SECRET not found!");
+        env::var("BOT_LISTEN").expect("BOT_LISTEN not found!");
+ 
         renew_app_access_token();
         let vids: Vec<String> = Vec::new();
         let nids=Mutex::new(vids);

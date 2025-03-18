@@ -40,7 +40,7 @@ pub struct Author {
     pub member_openid: Option<String>,
 }
 
-use super::bot_error;
+use super::bot_error::{self, Error};
 use crate::bot_web_hook::APP_ACCESS_TOKEN;
 use std::env;
 use tokio::task;
@@ -54,7 +54,7 @@ impl MessageHelper {
         let me = _me.clone();
         let msg = _msg.clone();
         let now = SystemTime::now();
-        let timestamp_secs = now.duration_since(UNIX_EPOCH).unwrap().as_millis();
+        let timestamp_secs:i128 = now.duration_since(UNIX_EPOCH).unwrap().as_millis().try_into().unwrap();
         let _t=  task::spawn_blocking( move || ->Result<(),bot_error::Error> {
             let msg_id = me.d.as_ref().unwrap().id.as_ref().unwrap();
             let json_obj = serde_json::json!({
@@ -88,7 +88,13 @@ impl MessageHelper {
                     .header("Authorization", format!("QQBot {}", token))
                     .send()
                     .unwrap();
-                Ok(())
+                if _response.status().is_success() {
+                    return Ok(());
+                } else {
+                    return Err(Error::Error(format!("bad reqwest: {:?}",_response.text().unwrap())));
+                }
+                
+                
             };
             return _ok();
         });
