@@ -13,7 +13,7 @@ use message::MessageEvent;
 use tokio::spawn;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
-use std::{ env, thread, u64};
+use std::{ env, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
 use tklog::{Format, LEVEL, LOG};
