@@ -139,7 +139,7 @@ struct AppState {
 pub  use actix_web::dev::Server;
 impl BotHook {
     #[allow(dead_code)]
-    pub fn start(handler:fn ( message::MessageEvent)) -> Server{
+    pub async  fn start(handler:fn ( message::MessageEvent)) ->Server {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
@@ -169,11 +169,12 @@ impl BotHook {
             App::new()
                 .wrap(Cors::permissive().supports_credentials())
                 .app_data(_was.clone())
-                //.service(greet).service(Files::new("/assets", "./assets/"))
+                .service(greet)
+                .service(Files::new("/assets", "./assets/"))
         })
         .bind(env::var("BOT_LISTEN").unwrap())
         .unwrap()
         .run();
-        return _app;
+      return _app;
     }
 }
