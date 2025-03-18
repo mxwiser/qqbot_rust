@@ -6,7 +6,7 @@
 - [] 支持图文消息发送
 - [] 未完待续...
 > 使用前请将bot.env.example重命名为bot.env，并配置 bot.env 中的信息 ，同时确保运行环境能够找到bot.env文件. 代码使用参考main.rs
-> 本库使用Tokio运行时
+> 本库使用Tokio运行时，监听的API路径为 "/"
 
 ```bash
 docker config
