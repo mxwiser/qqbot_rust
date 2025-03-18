@@ -130,9 +130,6 @@ pub struct BotHook;
         }
     });
 }
-
-
-
 type MessageHandler = Arc<fn (message::MessageEvent)>;
 struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
