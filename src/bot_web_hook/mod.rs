@@ -2,6 +2,7 @@
 pub mod bot_error;
 pub mod message;
 use actix_cors::Cors;
+#[allow(unused_imports)]
 use actix_files::Files;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
