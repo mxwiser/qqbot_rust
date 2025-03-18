@@ -13,8 +13,7 @@ use message::MessageEvent;
 use tokio::spawn;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
-#[allow(unused_imports)]
-pub use actix_web::main;
+
 
 
 use std::{ env, u64};
@@ -116,7 +115,6 @@ pub struct BotHook;
 async fn renew_app_access_token() {
     spawn(async {
         info!("APP_ACCESS_TOKEN Task Start！");
-
         loop {
         let  time=  spawn_blocking(||{
                 let json_obj = serde_json::json!({
@@ -156,10 +154,6 @@ struct AppState {
 }
 
 impl BotHook {
-
-
-
-
     pub async fn start(handler:fn ( message::MessageEvent)) {
         LOG.set_console(true)
         .set_level(LEVEL::Info)
