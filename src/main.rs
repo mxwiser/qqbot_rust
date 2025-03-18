@@ -16,9 +16,14 @@ async fn process(_message_event: bot_web_hook::message::MessageEvent) {
         bot_web_hook::message:: MessageHelper::rot_message(&_text, &_message_event).await.unwrap().unwrap();  
     }
 }
+#[bot_event]
+async  fn renew(_key:String,time:u64) {
+       println!("renew access_token: {}  expires_in: {}",_key,time);
+}
 
 #[tokio::main]
 async fn main() {
-    let _bot= BotHook::start(process);
-    tokio::try_join!(_bot).unwrap();
+    let _bot= BotHook::new_with_renew_event(process, renew);
+    let _server = _bot.start();
+    tokio::try_join!(_server).unwrap();
 }
