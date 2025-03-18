@@ -61,7 +61,7 @@ impl MessageHelper {
                 "content":msg,
                 "msg_type": 0,
                 "msg_id": msg_id,
-                "msg_seq": timestamp_secs,
+                "msg_seq": timestamp_secs%100000,
               });
             let _token = APP_ACCESS_TOKEN.lock().unwrap();
             let token = _token.to_string().clone();
