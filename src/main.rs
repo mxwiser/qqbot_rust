@@ -19,5 +19,6 @@ async fn process(_message_event: bot_web_hook::message::MessageEvent) {
 
 #[tokio::main]
 async fn main() {
-     BotHook::start(process).await;
+    let _bot= BotHook::start(process);
+    tokio::try_join!(_bot).unwrap();
 }

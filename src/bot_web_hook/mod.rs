@@ -13,7 +13,7 @@ use message::MessageEvent;
 use tokio::spawn;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
-use std::{ env, u64};
+use std::{ env, thread, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
 use tklog::{Format, LEVEL, LOG};
@@ -98,7 +98,7 @@ use actix_web::web;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 pub struct BotHook;
-async fn renew_app_access_token() {
+ fn renew_app_access_token() {
     spawn(async {
         info!("APP_ACCESS_TOKEN Task Start！");
         loop {
@@ -138,9 +138,10 @@ struct AppState {
     ids:Arc<Mutex<Vec<String>>>,
     event:MessageHandler
 }
-
+use actix_web::dev::Server;
 impl BotHook {
-    pub async fn start(handler:fn ( message::MessageEvent)) {
+    #[allow(dead_code)]
+    pub fn start(handler:fn ( message::MessageEvent)) -> Server{
         LOG.set_console(true)
         .set_level(LEVEL::Info)
         .set_format(Format::LevelFlag|Format::Date|Format::Time);
@@ -160,9 +161,8 @@ impl BotHook {
             env::var("BOT_LISTEN").expect("BOT_LISTEN not found!")
         );
 
-        renew_app_access_token().await;
+        renew_app_access_token();
 
-        // let ids: Vec<String> = Vec::new();
         let vids: Vec<String> = Vec::new();
         let nids=Mutex::new(vids);
         let _as = AppState {
@@ -170,7 +170,7 @@ impl BotHook {
             event:Arc::new(handler)
         };
         let _was =web::Data::new(_as);
-        let _ = HttpServer::new(move || {
+        let _app = HttpServer::new(move || {
             App::new()
                 .wrap(Cors::permissive().supports_credentials())
                 .app_data(_was.clone())
@@ -178,7 +178,8 @@ impl BotHook {
         })
         .bind(env::var("BOT_LISTEN").unwrap())
         .unwrap()
-        .run()
-        .await;
+        .run();
+
+        return _app;
     }
 }
