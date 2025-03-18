@@ -13,9 +13,6 @@ use message::MessageEvent;
 use tokio::spawn;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
-
-
-
 use std::{ env, u64};
 #[allow(unused_imports)]
 pub use tklog::{trace,debug, error, fatal, info,warn};
@@ -23,13 +20,6 @@ use tklog::{Format, LEVEL, LOG};
 lazy_static::lazy_static! {
     static ref APP_ACCESS_TOKEN: Arc<Mutex<String>> = Arc::new(Mutex::new("".to_string()));
 }
-
-
-
-
-
-
-
 
 fn plain_token_vef(_msg: MessageEvent) -> Result<serde_json::Value, bot_error::Error> {
     let plain_token = ok_or!(ok_or!(_msg.d.clone()).plain_token);
@@ -104,13 +94,9 @@ async fn greet(
     }
 }
 
-
-
 use actix_web::web;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-
-
 pub struct BotHook;
 async fn renew_app_access_token() {
     spawn(async {
