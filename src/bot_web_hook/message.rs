@@ -45,7 +45,7 @@ use crate::bot_web_hook::APP_ACCESS_TOKEN;
 use std::env;
 use tokio::task;
 
-
+use std::time::{SystemTime, UNIX_EPOCH};
 pub struct MessageHelper;
 #[allow(unused)]
 use actix_web::rt::task::JoinHandle;
@@ -53,12 +53,15 @@ impl MessageHelper {
     pub fn rot_message(_msg: &String, _me:& MessageEvent) -> JoinHandle<Result<(),bot_error::Error>>{
         let me = _me.clone();
         let msg = _msg.clone();
+        let now = SystemTime::now();
+        let timestamp_secs = now.duration_since(UNIX_EPOCH).unwrap().as_millis();
         let _t=  task::spawn_blocking( move || ->Result<(),bot_error::Error> {
             let msg_id = me.d.as_ref().unwrap().id.as_ref().unwrap();
             let json_obj = serde_json::json!({
                 "content":msg,
                 "msg_type": 0,
-                "msg_id": msg_id
+                "msg_id": msg_id,
+                "msg_seq": timestamp_secs,
               });
             let _token = APP_ACCESS_TOKEN.lock().unwrap();
             let token = _token.to_string().clone();
