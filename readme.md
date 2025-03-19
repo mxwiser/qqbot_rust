@@ -6,7 +6,9 @@
 - [] 支持图文消息发送
 - [] 未完待续...
 > 基础功能框架已经实现，其他功能基于框架开发即可。
-> 使用前请将bot.env.example重命名为bot.env，并配置 bot.env 中的信息 ，同时确保运行环境能够找到bot.env文件. 代码使用参考main.rs
+
+> 使用前请确保环境变量能够被准确加载，参考bot.env.example。例如:重命名为bot.env，并配置从bot.env中加载环境变量.代码参考main.rs.
+
 > 本库使用Tokio运行时，监听的API路径为 "/"
 
 ```bash

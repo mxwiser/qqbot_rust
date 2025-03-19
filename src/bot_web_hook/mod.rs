@@ -6,7 +6,6 @@ use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::HttpRequest;
 use actix_web::{App, HttpResponse, HttpServer, Responder};
-pub use dotenv::from_filename;
 use ed25519_dalek::Signature;
 use ed25519_dalek::SigningKey;
 use ed25519_dalek::ed25519::signature::SignerMut;
@@ -166,12 +165,9 @@ impl BotHook {
 
     #[allow(dead_code)]
     pub fn start(&self) ->Server {
-     
-        from_filename("bot.env").ok();
         env::var("BOT_APPID").expect("BOT_APPID not found!");
         env::var("BOT_SECRET").expect("BOT_SECRET not found!");
         env::var("BOT_LISTEN").expect("BOT_LISTEN not found!");
- 
         self.renew_app_access_token();
         let _as = self.app_state.clone();
         let _was =web::Data::new(_as);

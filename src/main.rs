@@ -1,7 +1,7 @@
 mod bot_web_hook;
 use bot_web_hook::BotHook;
 use macros::bot_event;
-
+use dotenv::from_filename;
 
 #[bot_event]
 async fn process(_message_event: bot_web_hook::message::MessageEvent) {
@@ -23,6 +23,7 @@ async  fn renew(_key:String,time:u64) {
 
 #[tokio::main]
 async fn main() {
+    from_filename("bot.env").ok();
     let _bot= BotHook::new_with_renew_event(process, renew);
     let _server = _bot.start();
     tokio::try_join!(_server).unwrap();
