@@ -10,13 +10,12 @@ pub fn bot_event(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let fn_args = &input_fn.sig.inputs;
     let fn_ident = &input_fn.sig.ident;
     
-//    // 处理返回类型
-//     let return_type = match &input_fn.sig.output {
-//     ReturnType::Default => quote! { () },
-//     ReturnType::Type(_, ty) => quote! { #ty }
-// };
-
-    // 生成新的 main 函数
+    //    // 处理返回类型
+    //     let return_type = match &input_fn.sig.output {
+    //     ReturnType::Default => quote! { () },
+    //     ReturnType::Type(_, ty) => quote! { #ty }
+    // };
+    // 生成新的函数
     let expanded = quote! {
         fn #fn_ident(#fn_args){
              tokio::spawn(async move {
